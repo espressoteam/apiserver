@@ -1,4 +1,5 @@
 module.exports = {
+  lastId: 4,
   routes: [
     {
       'id': 0,
@@ -113,4 +114,4 @@ module.exports = {
         }]
     }
   ]
-};
+}

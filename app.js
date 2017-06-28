@@ -11,6 +11,12 @@ const schema = buildSchema(`
     route(id: Int!): Route
   }
 
+  type Mutation {
+    createRoute(route: RouteInput): Route
+    updateRoute(id: Int!, route: RouteInput): Route
+    deleteRoute(id: Int!): Route
+  }
+
   type Route {
     id: Int!
     title: String
@@ -24,7 +30,25 @@ const schema = buildSchema(`
     visits: [Visit]
   }
 
+  input RouteInput {
+    id: Int
+    title: String
+    info: String
+    traveller: String
+    duration: String
+    cost_est: String
+    copied: Int
+    imageUrl: String
+    center: LocationInput
+    visits: [VisitInput]
+  }
+
   type Location {
+    lat: Float
+    lng: Float
+  }
+
+  input LocationInput {
     lat: Float
     lng: Float
   }
@@ -41,10 +65,24 @@ const schema = buildSchema(`
     url: String
     position: Location
   }
+
+  input VisitInput {
+    id: String
+    seq: Int
+    commute: String
+    date: String
+    start: Float
+    end: Float
+    title: String
+    info: String
+    url: String
+    position: LocationInput
+  }
 `)
 
 const data = require('./data')
-    // The root provides a resolver function for each API endpoint
+
+// The root provides a resolver function for each API endpoint
 const root = {
   route: ({ id }) => {
     return data.routes.find(r => r.id === id)
@@ -54,6 +92,27 @@ const root = {
   },
   popularRoutes: () => {
     return data.routes.slice(3)
+  },
+  createRoute: ({route}) => {
+    route.id = ++data.lastId
+    data.routes.push(route)
+    return route
+  },
+  updateRoute: ({id, route}) => {
+    const existingRoute = root.route({id: id})
+    if (!existingRoute) {
+      throw new Error('No route exists with id ' + id)
+    }
+    return Object.assign(existingRoute, route)
+  },
+  deleteRoute: ({id}) => {
+    const existingRoute = root.route({id: id})
+    if (!existingRoute) {
+      throw new Error('No route exists with id ' + id)
+    }
+    const routeIndex = data.routes.findIndex(r => r.id === id)
+    data.routes.splice(routeIndex, 1)
+    return existingRoute
   }
 }
 

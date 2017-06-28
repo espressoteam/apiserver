@@ -1,10 +1,10 @@
-var express = require('express');
-var cors = require('cors');
-var graphqlHTTP = require('express-graphql');
-var { buildSchema } = require('graphql');
+const express = require('express')
+const cors = require('cors')
+const graphqlHTTP = require('express-graphql')
+const { buildSchema } = require('graphql')
 
 // Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
+const schema = buildSchema(`
   type Query {
     recommendRoutes: [Route]
     popularRoutes: [Route]
@@ -41,28 +41,28 @@ var schema = buildSchema(`
     url: String
     position: Location
   }
-`);
+`)
 
-var data = require('./data');
-// The root provides a resolver function for each API endpoint
-var root = {
-  route: ({id}) => {
-      return data.routes.find(r => r.id === id);
+const data = require('./data')
+    // The root provides a resolver function for each API endpoint
+const root = {
+  route: ({ id }) => {
+    return data.routes.find(r => r.id === id)
   },
   recommendRoutes: () => {
-    return data.routes.slice(0, 2);
+    return data.routes.slice(0, 2)
   },
   popularRoutes: () => {
-    return data.routes.slice(3);
-  },
-};
+    return data.routes.slice(3)
+  }
+}
 
-var app = express();
-app.use(cors());
+const app = express()
+app.use(cors())
 app.use('/graphql', graphqlHTTP({
   schema: schema,
   rootValue: root,
-  graphiql: true,
-}));
-app.listen(4000);
-console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+  graphiql: true
+}))
+app.listen(process.env.PORT || 4000)
+console.log('Running a GraphQL API server at http://localhost:4000/graphql')
